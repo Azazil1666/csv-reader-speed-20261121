@@ -1,0 +1,28 @@
+Build an entry for the make.fun coding bounty csv-reader-speed-01-run-20261121. The entry is a faster drop-in for make.fun's own csv-reader 1.0.0: a program that reads broken CSV files faster while answering exactly as csv-reader does on every case. Prize: $100 total, 10 places x $10 each. Deadline Mon 2026-11-23 02:42 UTC = 09:42 WIB. Entries opened Fri 2026-11-21 02:42 UTC. Payout wallet (Solana): H1rGTh5pUQFV4GnPbi3paWb73VdPftTHGoDdBFVVfHUo. Escrow: OPEN, $100 USDC held on Solana (verified live). Harness: program/v1. Field: 150 submissions at last check. At most 10 submissions a day and 20 in all.
+
+Build it as a program in this repository: solve.js (a dependency-free ES module in the repo root) whose run(input) returns csv-reader's answer for every case input {text, header}, and main.ts (Node 22) that reads every case from /input/cases.json, answers each with run, and writes /output/answers.json. The full spec below is authoritative — work from it, in this repository only.
+
+THE SPEC (csv-reader 1.0.0's reading, exact):
+- Text is read once, left to right, with commas and double quotes. A U+FEFF at its very start is dropped.
+- A record ends at LF or CRLF; a line left with no characters is no record. Outside quotes a CR not followed by LF is dropped (error stray_cr).
+- A field that opens with a quote runs to the next quote that is not doubled; "" inside it is one quote; each CRLF or lone CR inside it is read as LF; what follows its closing quote, up to the next comma or line break, is appended as it stands (quote_junk, when the field ends); a quote that never closes is a literal character, and the text after it is read again as unquoted (unterminated_quote).
+- A quote inside an unquoted field is a literal character. Fields stay strings, never trimmed or converted.
+- columns is the first record when header is true, else null; rows holds the records after it (every record when header is false), each padded with empty strings (short_row, with fields: its field count) or cut (long_row, with extra: the cut fields) to the first record's width.
+- Each error is {code, line, row}, in the order met; a record's short_row or long_row when it ends: line is the 1-based line its record starts on, counting every LF, CRLF and lone CR inside quotes; row is its record's index in rows, null for the header.
+- Answer is the JSON value {columns, rows, errors}.
+
+GATES (all must pass):
+- Every case identical to csv-reader 1.0.0 (practice set in the kit; final set drawn after entries close from drand round 34199652, unknowable now). Any missed case = no reward, ranked below every passing entry.
+- CPU time: fastest entries timed in a heat; a reward needs beating the house baseline (csv-reader 1.0.0 itself) at 95% confidence (one-sided, over repeated timed runs). Peak memory not scored, capped by sandbox memory limit.
+- No network at run time; sandbox 1 CPU, 1024 MB, 10s wall per execution. Every entry is executed twice on the same set; both outputs must match byte for byte.
+- Node 22 runs node /bot/main.ts; JavaScript or TypeScript source only; nothing installed before the program runs; no WebAssembly, native addon or prebuilt binary. Nothing cached from one case to the next; each case answered alone.
+- Repository holds at most 1 MiB (1,048,576 bytes), all files together, to bound lookup tables; a larger repo is refused before grading.
+- Entry may tune V8 flags the same way the baseline does (setFlagsFromString('--no-incremental-marking') from node:v8).
+
+APPROACH:
+- Read the house baseline first (baselines/csv-reader/: main.ts, solve.js, vendor/csv-reader/). Understand its exact semantics, then write your own faster solve.js — hand-rolled, single-pass, no per-field allocations you can avoid, no regex on hot paths.
+- Do NOT copy papaparse or d3-dsv or any public CSV parser: their outputs are NOT csv-reader's (they read broken rows their own way) and would fail the identical-answers gate. Write your own parser from the spec above.
+- Benchmark on the practice set with the kit's grade-local (node cli/makefun.mjs grade-local --kit <kit> --bot <repo>). Iterate until every practice case passes AND the time beats the baseline with margin. Record the score and what moved it.
+- Determinism: run twice, outputs byte-identical.
+
+Do NOT: submit, upload, push or publish anything; use network at run time; put secrets in the repo or transcripts; invent data; copy the kit starter/baseline files into the repo (write your own solve.js — the transcript gate counts only code your own sessions wrote).

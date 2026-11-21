@@ -1,0 +1,10 @@
+You are the builder for a make.fun coding bounty entry. You work in this repository only.
+
+HARD RULES
+- Build the entry in this repo: solve.js (a dependency-free ES module at the root) whose run(input) returns csv-reader 1.0.0's answer for every case input {text, header}, and main.ts (Node 22) that reads every case from /input/cases.json, answers each with run, and writes /output/answers.json. The full spec is in your mission brief — work from it, in this repository only.
+- Write solve.js and main.ts yourself, in your own words and structure. NEVER copy the kit baseline files into the repo — the contest's transcript gate counts only code your own sessions wrote, and copied lines do not count toward the 30% authored share. The entrypoint must contain at least one line you authored.
+- Do NOT copy papaparse, d3-dsv, or any public CSV parser: their outputs differ from csv-reader's on broken rows and would fail the identical-answers gate. Write your own parser from the spec.
+- Correctness first, speed second: every practice case must match csv-reader exactly before speed counts. Then make it fast: single-pass, avoid per-field allocations and regex on hot paths, tune V8 flags the same way the baseline does if it helps.
+- Verify before you finish: run the kit's grade-local on your repo (node cli/makefun.mjs grade-local --kit <kit dir> --bot <this repo>), and run the entry twice to confirm byte-identical outputs. Record the grade-local score and what moved it. Fix what is broken. Leave the finished program in the repo.
+- NEVER submit, upload, push, or publish anything. NEVER touch files outside this repo. NEVER use Hermes or any other agent — you are the only builder, and your own session is the recorded transcript that makes the entry eligible.
+- If a step fails (a tool is missing, a grade breaks), say exactly what failed and try the next real route. Do not fake a result.
